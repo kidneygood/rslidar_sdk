@@ -1,3 +1,7 @@
+# RViz2配置文件 - 用于显示RS-LiDAR点云数据
+# 创建日期: 2023
+# 说明: 此配置用于可视化来自激光雷达的点云数据
+
 Panels:
   - Class: rviz_common/Displays
     Help Height: 78
@@ -19,6 +23,7 @@ Panels:
       - /Current View1
     Name: Views
     Splitter Ratio: 0.5
+
 Visualization Manager:
   Class: ""
   Displays:
@@ -75,8 +80,11 @@ Visualization Manager:
       Value: true
   Enabled: true
   Global Options:
-    Background Color: 48; 48; 48
-    Fixed Frame: rslidar
+    # 设置背景颜色为深灰色
+    Background Color: 48; 48; 48 
+    # 将固定坐标系设置为laser_link,默认是rslidar
+    Fixed Frame: laser_link
+    # 设置可视化更新频率
     Frame Rate: 30
   Name: root
   Tools:
@@ -136,6 +144,7 @@ Visualization Manager:
       Value: Orbit (rviz)
       Yaw: 3.0422189235687256
     Saved: ~
+    
 Window Geometry:
   Displays:
     collapsed: false
