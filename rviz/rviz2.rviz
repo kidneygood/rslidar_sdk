@@ -27,6 +27,8 @@ Panels:
 Visualization Manager:
   Class: ""
   Displays:
+
+    # 添加配置定义了一个网格显示，主要用于在RViz中可视化参考框架。
     - Alpha: 0.5
       Cell Size: 1
       Class: rviz_default_plugins/Grid
@@ -45,6 +47,8 @@ Visualization Manager:
       Plane Cell Count: 10
       Reference Frame: <Fixed Frame>
       Value: true
+
+    # 添加/rslidar_points的显示配置
     - Alpha: 1
       Autocompute Intensity Bounds: true
       Autocompute Value Bounds:
@@ -78,14 +82,44 @@ Visualization Manager:
       Use Fixed Frame: true
       Use rainbow: true
       Value: true
+
+    # 添加/rslidar_scan的显示配置
+    - Alpha: 1
+      Autocompute Intensity Bounds: true
+      Class: rviz_default_plugins/LaserScan
+      Color: 0; 255; 0
+      Enabled: true
+      Name: LaserScan
+      Position Transformer: XYZ
+      Selectable: true
+      Size (Pixels): 1
+      Style: Flat Squares
+      Topic:
+        Depth: 5
+        Durability Policy: Volatile
+        History Policy: Keep Last
+        Reliability Policy: Best Effort
+        Value: /rslidar_scan
+      Use Fixed Frame: true
+      Value: true
+
+    # 添加/tf的显示配置  
+    - Alpha: 1
+      Class: rviz_default_plugins/TF
+      Enabled: true
+      Name: TF
+      Style: Arrows
+      Show Names: true
+
   Enabled: true
   Global Options:
     # 设置背景颜色为深灰色
     Background Color: 48; 48; 48 
-    # 将固定坐标系设置为laser_link,默认是rslidar
-    Fixed Frame: laser_link
+    # 将固定坐标系设置为base_link,默认是rslidar
+    Fixed Frame: base_link
     # 设置可视化更新频率
     Frame Rate: 30
+  
   Name: root
   Tools:
     - Class: rviz_default_plugins/Interact
