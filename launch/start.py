@@ -6,8 +6,8 @@ from ament_index_python.packages import get_package_share_directory
 pi = 3.141592653589793  # 定义圆周率
 
 def generate_launch_description():
+    
     rviz_config = get_package_share_directory("rslidar_sdk") + "/rviz/rviz2.rviz"
-
     config_file = ""  # your config file path
 
     rsildar_sdk_node = Node(
@@ -47,10 +47,18 @@ def generate_launch_description():
         name="pointcloud_to_laserscan",
     )
 
+    static_transform_publisher_laser_node = Node(
+        package="tf2_ros",
+        executable="static_transform_publisher",
+        name="base_to_laser",
+        arguments=["0", "0", "0.3", "0", "0", "0", "1", "base_link", "laser_link"],
+    )
+
     return LaunchDescription(
         [
             rsildar_sdk_node,            
             pointcloud_to_laserscan_node,
+            static_transform_publisher_laser_node,
             rviz2_node,
         ]
     )
