@@ -1,7 +1,8 @@
 from launch import LaunchDescription
 from launch_ros.actions import Node
 from ament_index_python.packages import get_package_share_directory
-
+from launch.substitutions import LaunchConfiguration
+import os
 # 直接定义常量
 pi = 3.141592653589793  # 定义圆周率
 
@@ -47,11 +48,70 @@ def generate_launch_description():
         name="pointcloud_to_laserscan",
     )
 
+    pointcloud_to_laserscan_node = Node(
+    package="pointcloud_to_laserscan",
+    executable="pointcloud_to_laserscan_node",
+    name="pointcloud_to_laserscan",
+    parameters=[{
+        "target_frame": "laser_link",  # 确保与TF树一致
+        "transform_tolerance": 0.01,
+        "use_sim_time": False,
+    }],
+    # 添加QoS配置
+    remappings=[("cloud_in", "/rslidar_points")],
+    arguments=["--ros-args", "--qos-profile", "sensor_data:=best_effort"]
+)
+
+
     static_transform_publisher_laser_node = Node(
         package="tf2_ros",
         executable="static_transform_publisher",
         name="base_to_laser",
-        arguments=["0", "0", "0.3", "0", "0", "0", "1", "base_link", "laser_link"],
+        arguments=[
+            "--x", "0", "--y", "0", "--z", "0.3",       # 平移：base_link 到 laser_link 的 Z 轴偏移 0.3 米
+            "--qx", "0", "--qy", "0", "--qz", "0", "--qw", "1",  # 旋转（四元数）：无旋转 (w=1)
+            "--frame-id", "base_link", "--child-frame-id", "laser_link"
+        ],
+    )
+
+    static_transform_publisher_imu_node = Node(
+        package="tf2_ros",
+        executable="static_transform_publisher",
+        name="base_to_imu",
+        arguments=[
+            "--x", "0", "--y", "0", "--z", "0",         # 平移：base_link 到 imu_link 无偏移
+            "--qx", "0", "--qy", "0", "--qz", "0", "--qw", "1",  # 旋转（四元数）：无旋转 (w=1)
+            "--frame-id", "base_link", "--child-frame-id", "imu_link"
+        ],
+    )
+
+    # 启动 Cartographer 生成地图的节点
+    occupancy_grid_node = Node(
+        package="cartographer_ros",
+        executable="cartographer_occupancy_grid_node",
+        name="cartographer_occupancy_grid_node",
+        arguments=["-resolution", "0.05"],
+    )
+    
+    use_sim_time = LaunchConfiguration("use_sim_time", default="false")
+    cartographer_node = Node(
+        package="cartographer_ros",
+        executable="cartographer_node",
+        name="cartographer_node",
+        output="screen",
+        parameters=[{"use_sim_time": use_sim_time}],
+        arguments=[
+            "-configuration_directory",
+            os.path.join(
+                get_package_share_directory("cartographer_ros"), "configuration_files"
+            ),
+            "-configuration_basename",
+            "rs16_lidar.lua",
+        ],
+        remappings=[
+            ("/scan", "/rslidar_scan"),
+            ("/imu", "/IMU_data"),
+        ],  # 点云扫描话题重映射 ('/odom', '/odometry/filtered')
     )
 
     return LaunchDescription(
@@ -59,6 +119,10 @@ def generate_launch_description():
             rsildar_sdk_node,            
             pointcloud_to_laserscan_node,
             static_transform_publisher_laser_node,
+            static_transform_publisher_imu_node,
             rviz2_node,
+
+            # cartographer_node,#0
+            # occupancy_grid_node,#0
         ]
     )
