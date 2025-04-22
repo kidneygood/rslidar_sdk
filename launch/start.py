@@ -8,21 +8,18 @@ pi = 3.141592653589793  # 定义圆周率
 
 def generate_launch_description():
     
-    rviz_config = get_package_share_directory("rslidar_sdk") + "/rviz/rviz2.rviz"
-    config_file = ""  # your config file path
-
     rsildar_sdk_node = Node(
         namespace="rslidar_sdk",
         package="rslidar_sdk",
         executable="rslidar_sdk_node",
         output="screen",
-        parameters=[{"config_path": config_file}],
+        parameters=[{"config_path": ""}],
     )
     rviz2_node = Node(
         namespace="rviz2",
         package="rviz2",
         executable="rviz2",
-        arguments=["-d", rviz_config],
+        arguments=["-d", get_package_share_directory("rslidar_sdk") + "/rviz/rviz2.rviz"],
     )
 
     pointcloud_to_laserscan_node = Node(
@@ -47,20 +44,6 @@ def generate_launch_description():
         ],
         name="pointcloud_to_laserscan",
     )
-
-    pointcloud_to_laserscan_node = Node(
-    package="pointcloud_to_laserscan",
-    executable="pointcloud_to_laserscan_node",
-    name="pointcloud_to_laserscan",
-    parameters=[{
-        "target_frame": "laser_link",  # 确保与TF树一致
-        "transform_tolerance": 0.01,
-        "use_sim_time": False,
-    }],
-    # 添加QoS配置
-    remappings=[("cloud_in", "/rslidar_points")],
-    arguments=["--ros-args", "--qos-profile", "sensor_data:=best_effort"]
-)
 
 
     static_transform_publisher_laser_node = Node(
@@ -92,7 +75,8 @@ def generate_launch_description():
         name="cartographer_occupancy_grid_node",
         arguments=["-resolution", "0.05"],
     )
-    
+
+
     use_sim_time = LaunchConfiguration("use_sim_time", default="false")
     cartographer_node = Node(
         package="cartographer_ros",
@@ -102,16 +86,14 @@ def generate_launch_description():
         parameters=[{"use_sim_time": use_sim_time}],
         arguments=[
             "-configuration_directory",
-            os.path.join(
-                get_package_share_directory("cartographer_ros"), "configuration_files"
-            ),
+            get_package_share_directory("rslidar_sdk"),
             "-configuration_basename",
-            "rs16_lidar.lua",
+            "rs16_lidar_rslidar.lua",
         ],
         remappings=[
             ("/scan", "/rslidar_scan"),
             ("/imu", "/IMU_data"),
-        ],  # 点云扫描话题重映射 ('/odom', '/odometry/filtered')
+        ],
     )
 
     return LaunchDescription(
@@ -122,7 +104,7 @@ def generate_launch_description():
             static_transform_publisher_imu_node,
             rviz2_node,
 
-            # cartographer_node,#0
-            # occupancy_grid_node,#0
+            cartographer_node,#0
+            occupancy_grid_node,#0
         ]
     )
