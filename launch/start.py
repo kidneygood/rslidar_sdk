@@ -2,7 +2,8 @@ from launch import LaunchDescription
 from launch_ros.actions import Node
 from ament_index_python.packages import get_package_share_directory
 from launch.substitutions import LaunchConfiguration
-import os
+
+
 # 直接定义常量
 pi = 3.141592653589793  # 定义圆周率
 
@@ -104,7 +105,7 @@ def generate_launch_description():
             static_transform_publisher_imu_node,
             rviz2_node,
 
-            cartographer_node,#0
-            occupancy_grid_node,#0
+            cartographer_node,
+            occupancy_grid_node,
         ]
     )
