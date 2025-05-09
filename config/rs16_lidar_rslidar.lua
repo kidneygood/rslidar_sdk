@@ -6,8 +6,8 @@ options = {
   trajectory_builder = TRAJECTORY_BUILDER,
   map_frame = "map",
 
-  --tracking_frame = "imu_link",
-  tracking_frame = "laser_link",
+  tracking_frame = "imu_link", -- 添加IMU
+  -- tracking_frame = "laser_link",
   -- published_frame = "base_link",
   published_frame = "odom",
 
@@ -40,7 +40,7 @@ TRAJECTORY_BUILDER_2D.submaps.num_range_data = 35
 TRAJECTORY_BUILDER_2D.min_range = 0.3
 TRAJECTORY_BUILDER_2D.max_range = 8.
 TRAJECTORY_BUILDER_2D.missing_data_ray_length = 1.
-TRAJECTORY_BUILDER_2D.use_imu_data = false  -- true使能IMU，false禁用IMU
+TRAJECTORY_BUILDER_2D.use_imu_data = true  -- true使能IMU，false禁用IMU
 TRAJECTORY_BUILDER_2D.use_online_correlative_scan_matching = true
 TRAJECTORY_BUILDER_2D.real_time_correlative_scan_matcher.linear_search_window = 0.1
 TRAJECTORY_BUILDER_2D.real_time_correlative_scan_matcher.translation_delta_cost_weight = 10.
